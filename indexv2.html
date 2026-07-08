@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>Candy Registration</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap');
+        :root { --accent-color: #ec407a; }
+        
+        body { 
+            font-family: 'Prompt', sans-serif; 
+            display: flex; justify-content: center; align-items: center; 
+            min-height: 100vh; margin: 0;
+            /* ส่วนที่แก้ไข: ใส่รูปภาพพื้นหลังตรงนี้ */
+            background-image: url('https://i.postimg.cc/YSqZN25H/images-(1).jpg/1920x1080'); /* เปลี่ยน URL ตรงนี้เป็นรูปที่คุณต้องการ */
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        
+        .box { 
+            /* ปรับความโปร่งใสเล็กน้อยเพื่อให้เห็นรูปพื้นหลังชัดขึ้น */
+            background: rgba(255, 255, 255, 0.9); 
+            padding: 30px; 
+            border-radius: 20px; 
+            backdrop-filter: blur(10px); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
+            width: 350px; 
+        }
+
+        input { width: 90%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; }
+        
+        .recaptcha-box { 
+            background: #f9f9f9; padding: 10px; border: 1px solid #ccc; 
+            border-radius: 5px; margin: 15px 0; font-size: 0.8rem; display: flex; align-items: center;
+        }
+
+        button { 
+            width: 100%; padding: 12px; border: none; border-radius: 10px; 
+            background: var(--accent-color); color: white; cursor: pointer; font-weight: bold; 
+        }
+        
+        #app-view { display: none; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div class="box" id="auth-view">
+        <h2 id="title-text" style="text-align: center;">เข้าสู่ระบบ</h2>
+        
+        <div id="login-fields">
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+        </div>
+
+        <div id="register-fields" style="display: none;">
+            <input type="text" id="fname" placeholder="ชื่อ">
+            <input type="text" id="lname" placeholder="นามสกุล">
+            <input type="text" id="class" placeholder="ชั้น">
+            <input type="text" id="number" placeholder="เลขที่">
+            <input type="text" id="reg-username" placeholder="Username">
+            
+            <div class="recaptcha-box">
+                <input type="checkbox" id="robot-check"> ยืนยันว่าฉันไม่ใช่หุ่นยนต์
+            </div>
+        </div>
+
+        <button id="main-btn" onclick="handleAuth()">เข้าสู่ระบบ</button>
+        <p style="text-align: center; margin-top: 15px; cursor: pointer; color: #ec407a;" onclick="toggleMode()">
+            <span id="toggle-text">ยังไม่มีบัญชี? สมัครสมาชิก</span>
+        </p>
+    </div>
+
+    <div class="box" id="app-view">
+        <h2 style="color: var(--accent-color);">สวัสดี!</h2>
+        <div id="user-info" style="margin: 20px 0; line-height: 1.8;"></div>
+        <button onclick="logout()" style="background: #777;">ออกจากระบบ</button>
+    </div>
+
+    <script>
+        let isRegisterMode = false;
+        let userData = { username: "admin", name: "สมชาย ใจดี", class: "ม.6/1", id: "01" };
+
+        function toggleMode() {
+            isRegisterMode = !isRegisterMode;
+            document.getElementById('title-text').innerText = isRegisterMode ? "สมัครสมาชิก" : "เข้าสู่ระบบ";
+            document.getElementById('main-btn').innerText = isRegisterMode ? "ยืนยันการสมัคร" : "เข้าสู่ระบบ";
+            document.getElementById('toggle-text').innerText = isRegisterMode ? "มีบัญชีอยู่แล้ว? เข้าสู่ระบบ" : "ยังไม่มีบัญชี? สมัครสมาชิก";
+            document.getElementById('login-fields').style.display = isRegisterMode ? 'none' : 'block';
+            document.getElementById('register-fields').style.display = isRegisterMode ? 'block' : 'none';
+        }
+
+        function handleAuth() {
+            if (isRegisterMode) {
+                const isChecked = document.getElementById('robot-check').checked;
+                if (!isChecked) { alert("กรุณายืนยันว่าคุณไม่ใช่หุ่นยนต์!"); return; }
+                
+                userData.username = document.getElementById('reg-username').value;
+                userData.name = document.getElementById('fname').value + " " + document.getElementById('lname').value;
+                userData.class = document.getElementById('class').value;
+                userData.id = document.getElementById('number').value;
+                
+                alert("สมัครสมาชิกสำเร็จ!");
+                toggleMode();
+            } else {
+                const user = document.getElementById('username').value;
+                const pass = document.getElementById('password').value;
+                if (user === userData.username && pass === "123456") {
+                    document.getElementById('auth-view').style.display = 'none';
+                    document.getElementById('app-view').style.display = 'block';
+                    document.getElementById('user-info').innerHTML = 
+                        `ชื่อ: ${userData.name}<br>ชั้น: ${userData.class}<br>เลขที่: ${userData.id}`;
+                } else {
+                    alert("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง!");
+                }
+            }
+        }
+
+        function logout() {
+            document.getElementById('app-view').style.display = 'none';
+            document.getElementById('auth-view').style.display = 'block';
+            document.getElementById('username').value = "";
+            document.getElementById('password').value = "";
+        }
+    </script>
+</body>
+</html>
